@@ -56,7 +56,6 @@ function upload(url, data) {
 
 function sendChunks() {
     let chunkId = 0;
-    let sendingPList = [];
     let isSending = false;
 
     function send(readyCache) {
@@ -75,10 +74,20 @@ function sendChunks() {
             }
         });
 
+        isSending = true;
+        sendP.then((response) => {
+            isSending = false;
+            if (response.errno === 0 && readyCache.length > 0) {
+                send(readyCache);
+            }
+        });
+
         chunkId++;
     }
 
     return new Promise((resolve, reject) => {
+        let readyCache = bufferCache.getChunks();
+
         let sendTimer = setInterval(() => {
             let readyCache = bufferCache.getChunks();
 
@@ -88,9 +97,10 @@ function sendChunks() {
                 readyCache.push(lastChunk);
                 send(readyCache);
             }
-            else if (readyCache.length > 0) {
+            else if (!isSending && readyCache.length > 0) {
                 send(readyCache);
             }
+            // not ready, wait for next interval
         }, 200);
     });
 }
