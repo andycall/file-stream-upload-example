@@ -3,7 +3,6 @@
 let request = require('request');
 let fs = require('fs');
 let uuid = require('node-uuid');
-let Promise = require('bluebird');
 
 // 引入缓存模块
 let BufferCache = require('./bufferCache');
@@ -109,19 +108,17 @@ function sendChunks() {
 
             return Promise.resolve(json);
         }).catch(err => {
-            console.log(err);
             if (retryCount > 0) {
-                sendPList.pop();
                 return send({
                     retry: retryCount - 1,
-                    index: chunkId,
+                    index: chunkIndex,
                     fresh: false,
                     data: chunk,
                     readyCache: readyCache
                 });
             }
             else {
-                console.log(`upload failed of chunkIndex: ${chunkId}`);
+                console.log(`upload failed of chunkIndex: ${chunkIndex}`);
                 stopSend = true;
                 return Promise.reject(err);
             }
@@ -133,28 +130,30 @@ function sendChunks() {
         let threadPool = [];
 
         let sendTimer = setInterval(() => {
-            if (!isSending) {
-                if (readyCache.length > 0) {
-                    for (let i = 0; i < 4; i++) {
-                        let thread = send({
-                            retry: RETRY_COUNT,
-                            fresh: true,
-                            readyCache: readyCache
-                        });
+            if (!isSending && readyCache.length > 0) {
+                for (let i = 0; i < 4; i++) {
+                    let thread = send({
+                        retry: RETRY_COUNT,
+                        fresh: true,
+                        readyCache: readyCache
+                    });
 
-                        threadPool.push(thread);
-                    }
+                    threadPool.push(thread);
                 }
-                else if (isFinished) {
+            }
+            else if ((isFinished && readyCache.length === 0) || stopSend) {
+                clearTimeout(sendTimer);
+
+                if (!stopSend) {
                     console.log('got last chunk');
                     let lastChunk = bufferCache.getRemainChunks();
                     readyCache.push(lastChunk);
+                    threadPool.push(send({
+                        retry: RETRY_COUNT,
+                        fresh: true,
+                        readyCache: readyCache
+                    }));
                 }
-            }
-
-            if ((isFinished && readyCache.length === 0) || stopSend) {
-                console.log('run clear');
-                clearTimeout(sendTimer);
 
                 Promise.all(threadPool).then(() => {
                     console.log('send success');
@@ -162,7 +161,6 @@ function sendChunks() {
                     console.log('send failed');
                 });
             }
-
             // not ready, wait for next interval
         }, 200);
     });
