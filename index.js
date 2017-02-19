@@ -54,6 +54,7 @@ function upload(url, data) {
     });
 }
 
+
 function sendChunks() {
     let chunkId = 0;
     let isSending = false;
