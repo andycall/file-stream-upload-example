@@ -29,6 +29,7 @@ class BufferCache {
 
             for (let i = 0; i < cutCount; i++) {
                 let newBuf = this._cache.slice(i * this.cutSize, (i + 1) * this.cutSize);
+
                 this.readyCache.push(newBuf);
             }
  

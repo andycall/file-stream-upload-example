@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.4.7",
     "node-uuid": "^1.4.7",
     "request": "^2.79.0"
   }
