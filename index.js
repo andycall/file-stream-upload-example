@@ -69,6 +69,7 @@ function sendChunks() {
 
         let chunk = null;
 
+        // 新的数据
         if (fresh) {
             if (readyCache.length === 0) {
                 return Promise.resolve();
@@ -84,9 +85,6 @@ function sendChunks() {
         }
 
         isSending = true;
-
-        console.log('sending size', chunk.length);
-
         return upload('http://localhost:3000', {
             chunk: {
                 value: chunk,
