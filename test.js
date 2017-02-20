@@ -51,9 +51,6 @@ function getData(url, data) {
     });
 }
 
-const tmpDir = path.join(__dirname, './testDownload');
-const receivedDIR = '/Users/baidu/baiduYun/learn/koa-example/receive/';
-
 function getMD5OfFile(filepath) {
     let buffer = fs.readFileSync(filepath);
     let md5 = crypto.createHash('md5');
