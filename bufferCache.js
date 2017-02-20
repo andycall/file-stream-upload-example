@@ -28,8 +28,8 @@ class BufferCache {
             let cutCount = Math.floor(totalLen / this.cutSize);
 
             for (let i = 0; i < cutCount; i++) {
-                let newBuf = this._cache.slice(i * this.cutSize, (i + 1) * this.cutSize);
-
+                let newBuf = Buffer.alloc(this.cutSize);
+                this._cache.copy(newBuf, 0, i * this.cutSize, (i + 1) * this.cutSize);
                 this.readyCache.push(newBuf);
             }
  
@@ -50,7 +50,7 @@ class BufferCache {
      * @returns {*}
      */
     getRemainChunks () {
-        if (this._cache.length < this.cutSize) {
+        if (this._cache.length <= this.cutSize) {
             return this._cache;
         }
         else {
