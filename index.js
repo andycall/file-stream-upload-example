@@ -149,7 +149,7 @@ module.exports = function (url, uploadURL, filename) {
 
             let sendTimer = setInterval(() => {
                 if (!isSending && readyCache.length > 0) {
-                    // for (let i = 0; i < 4; i++) {
+                    for (let i = 0; i < 4; i++) {
                         let thread = send({
                             retry: RETRY_COUNT,
                             fresh: true,
@@ -157,7 +157,7 @@ module.exports = function (url, uploadURL, filename) {
                         });
 
                         threadPool.push(thread);
-                    // }
+                    }
                 }
                 else if ((isFinished && readyCache.length === 0) || stopSend) {
                     clearTimeout(sendTimer);
