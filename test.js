@@ -25,10 +25,6 @@ let exampleData = [
         md5: 'ad2176c322d65def3b19450bc358c7dd'
     },
     {
-        url: 'http://cp01-rdqa-dev420.cp01:8822/output',
-        md5: '60204cdeeac20fb1063fc69a4aa6a830'
-    },
-    {
         url: 'http://gedftnj8mkvfefuaefm.exp.bcevod.com/mda-gmjz7ynfb9g2zj7f/mda-gmjz7ynfb9g2zj7f.mp4?bcevod_channel=searchbox_feed&auth_key=1492702329-0-0-718209eba73d4ffd003d94a7415480c5',
         md5: 'ac765793fd360b2dfb389202cc28b635'
     },
