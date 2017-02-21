@@ -76,8 +76,9 @@ module.exports = function (url, uploadURL, filename) {
     }
 
     function sendChunks(_opt) {
-        let chunkId = 0;
-        let maxSending = 0;
+        let chunkId = 0; // 给每个分片划分ID
+        let sending = 0; // 当前并行上传的数量
+        let MAX_SENDING = 1; // 最大并行上传数
         let stopSend = false;
 
         function send(options) {
@@ -104,7 +105,7 @@ module.exports = function (url, uploadURL, filename) {
             }
 
             console.log(`chunkIndex: ${chunkIndex}, buffer:${getMd5(chunk)}`);
-            maxSending++;
+            sending++;
             return upload(uploadURL, {
                 chunk: {
                     value: chunk,
@@ -113,7 +114,7 @@ module.exports = function (url, uploadURL, filename) {
                     }
                 }
             }).then((response) => {
-                maxSending--;
+                sending--;
                 let json = JSON.parse(response);
 
                 if (json.errno === 0 && readyCache.length > 0) {
@@ -148,8 +149,8 @@ module.exports = function (url, uploadURL, filename) {
             let threadPool = [];
 
             let sendTimer = setInterval(() => {
-                if (maxSending < 4 && readyCache.length > 0) {
-                    for (let i = 0; i < 4; i++) {
+                if (sending < MAX_SENDING && readyCache.length > 0) {
+                    for (let i = 0; i < MAX_SENDING; i++) {
                         let thread = send({
                             retry: RETRY_COUNT,
                             fresh: true,
