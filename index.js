@@ -77,7 +77,7 @@ module.exports = function (url, uploadURL, filename) {
 
     function sendChunks(_opt) {
         let chunkId = 0;
-        let isSending = false;
+        let maxSending = 0;
         let stopSend = false;
 
         function send(options) {
@@ -104,7 +104,7 @@ module.exports = function (url, uploadURL, filename) {
             }
 
             console.log(`chunkIndex: ${chunkIndex}, buffer:${getMd5(chunk)}`);
-            isSending = true;
+            maxSending++;
             return upload(uploadURL, {
                 chunk: {
                     value: chunk,
@@ -113,7 +113,7 @@ module.exports = function (url, uploadURL, filename) {
                     }
                 }
             }).then((response) => {
-                isSending = false;
+                maxSending--;
                 let json = JSON.parse(response);
 
                 if (json.errno === 0 && readyCache.length > 0) {
@@ -148,7 +148,7 @@ module.exports = function (url, uploadURL, filename) {
             let threadPool = [];
 
             let sendTimer = setInterval(() => {
-                if (!isSending && readyCache.length > 0) {
+                if (maxSending < 4 && readyCache.length > 0) {
                     for (let i = 0; i < 4; i++) {
                         let thread = send({
                             retry: RETRY_COUNT,

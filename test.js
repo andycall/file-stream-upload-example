@@ -2,9 +2,7 @@ let getChunks = require('./index');
 let request = require('request');
 let fs = require('fs');
 let Promise = require('bluebird');
-let crypto = require('crypto');
 let path = require('path');
-let execSync = require('child_process').execSync;
 let assert = require('assert');
 let BufferCache = require('./bufferCache');
 
@@ -49,13 +47,6 @@ function getData(url, data) {
             }
         });
     });
-}
-
-function getMD5OfFile(filepath) {
-    let buffer = fs.readFileSync(filepath);
-    let md5 = crypto.createHash('md5');
-    md5.update(buffer);
-    return md5.digest('hex');
 }
 
 describe('文件下载测试', () => {
