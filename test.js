@@ -50,9 +50,54 @@ function getData(url, data) {
 }
 
 describe('文件下载测试', () => {
-    it('bufferCache Test', function (done) {
-        let bufferCache = new BufferCache(1024 * 10);
+    it('bufferCache simple Test', (done) => {
+        console.log('start memory Usage', process.memoryUsage());
+
+        let bufferCache = new BufferCache(2, 1024 * 1024);
+
+        let chunk1 = Buffer.from('aaaa');
+        let chunk2 = Buffer.from('b');
+        let chunk3 = Buffer.from('ccccccc');
+        let chunk4 = Buffer.from('d');
+
+        bufferCache.pushBuf(chunk1);
+        bufferCache.pushBuf(chunk2);
+        bufferCache.pushBuf(chunk3);
+        bufferCache.pushBuf(chunk4);
+
+        let result = [
+            'aa',
+            'aa',
+            'bc',
+            'cc',
+            'cc',
+            'cc'
+        ];
+
+        result.forEach((str, index) => {
+            assert.equal(str, bufferCache.readyCache[index].toString());
+        });
+
+        assert.equal('d', bufferCache.getRemainChunks().toString());
+
+        console.log('test finishe memoryUsage', process.memoryUsage());
         
+        chunk1 = null;
+        chunk2 = null;
+        chunk3 = null;
+        chunk4 = null;
+        bufferCache.drain();
+        bufferCache = null;
+
+        setTimeout(() => {
+            console.log('released bufferCache memoryUsage', process.memoryUsage());
+            done();
+        }, 500);
+    });
+
+    it('bufferCache BenchMark Test', function (done) {
+        let bufferCache = new BufferCache(1024 * 10);
+
         var startTime = Date.now();
         var originalBuffer = [];
         let compiledBuffer = [];
